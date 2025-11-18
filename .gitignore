@@ -1,0 +1,11 @@
+*
+!*/
+!PKGBUILD
+!.SRCINFO
+!*.patch
+!*.diff
+!*.install
+!README.md
+!LICENSE
+!.gitignore
+!.github/**

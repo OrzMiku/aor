@@ -1,0 +1,74 @@
+pkgname=hmcl-beta-bin
+pkgver=3.8.0.308
+pkgrel=1
+pkgdesc="A Minecraft Launcher which is multi-functional, cross-platform and popular."
+arch=('any')
+depends=('java-runtime' 'hicolor-icon-theme')
+url="https://github.com/hmcl-dev/hmcl"
+license=('GPL-3.0-or-later')
+provides=('hmcl')
+conflicts=('hmcl')
+maintainer="OrzMiku <miku@ecy.pink>"
+source=(
+  "${pkgname}-${pkgver}-${pkgrel}.jar::https://github.com/HMCL-dev/HMCL/releases/download/v${pkgver}/HMCL-${pkgver}.jar"
+)
+sha256sums=('fca3cb449d59a8e93a7a37fec382aaf9292b35cb19481c80082be71ad07302b6')
+noextract=("${pkgname}-${pkgver}-${pkgrel}.jar")
+
+prepare() {
+  # Extract icons from the .jar file
+  local icon
+  for icon in icon.png icon@2x.png icon@4x.png icon@8x.png; do
+    jar -xf "${pkgname}-${pkgver}-${pkgrel}.jar" "assets/img/${icon}" || {
+      error "Failed to extract ${icon}"
+      return 1
+    }
+  done
+}
+
+package() {
+  # 1. Install main jar file
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}-${pkgrel}.jar" "${pkgdir}/usr/share/java/${pkgname}/${pkgname}.jar"
+
+  # 2. Install startup script
+  install -Dm755 /dev/stdin "${pkgdir}/usr/bin/${pkgname}" << EOF
+#!/bin/sh
+if [ -n "\${HMCL_DIR}" ]; then
+  RUNDIR="\${HMCL_DIR}"
+else
+  RUNDIR="\${HOME}/.local/share/hmcl"
+fi
+
+if [ ! -d \${RUNDIR} ]; then
+  mkdir -p \${RUNDIR}
+fi
+
+cd "\${RUNDIR}" || exit 1
+exec /usr/bin/java -jar /usr/share/java/${pkgname}/${pkgname}.jar "\$@"
+EOF
+
+  # 3. Install icons
+  declare -A icon_map=(
+    ["icon.png"]=32
+    ["icon@2x.png"]=64
+    ["icon@4x.png"]=128
+    ["icon@8x.png"]=256
+  )
+  for iconfile in "${!icon_map[@]}"; do
+    iconsize=${icon_map[$iconfile]}
+    install -Dm644 "assets/img/${iconfile}" \
+      "${pkgdir}/usr/share/icons/hicolor/${iconsize}x${iconsize}/apps/${pkgname}.png"
+  done
+
+  # 4. Install desktop entry
+  install -Dm644 /dev/stdin "${pkgdir}/usr/share/applications/hmcl.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Name=HMCL
+Comment=${pkgdesc}
+Exec=${pkgname}
+Icon=${pkgname}
+Categories=Game;
+Terminal=false
+EOF
+}
