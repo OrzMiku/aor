@@ -1,0 +1,49 @@
+pkgname=love-iwara-bin
+pkgver=0.3.18
+pkgrel=3
+pkgdesc="An unofficial iwara flutter app."
+arch=('any')
+url="https://github.com/FoxSensei001/LoveIwara"
+license=("MIT")
+makedepends=('unzip')
+noextract=("${pkgname}-${pkgver}-${pkgrel}.zip")
+provides=('love-iwara')
+conflicts=('love-iwara')
+maintainer="OrzMiku <miku@ecy.pink>"
+source=(
+  "${pkgname}-${pkgver}-${pkgrel}.zip::https://github.com/FoxSensei001/LoveIwara/releases/download/0.3.18/linux-release.zip"
+)
+sha256sums=('7c1a3f17cde4c8a6197a2d27359e41d6f553bfd176ca33479ad42b8750ccdb79')
+
+package() {
+  # Extract the inner tar.gz file
+  unzip -q -o "${pkgname}-${pkgver}-${pkgrel}.zip"
+  tar -xf "i_iwara-linux-${pkgver}.tar.gz"
+
+  # Create the target directory
+  install -d "${pkgdir}/opt/${pkgname}"
+  
+  # Copy all contents from the bundle directory to the target directory
+  cp -r bundle/* "${pkgdir}/opt/${pkgname}/"
+  
+  # Set binary file permissions
+  chmod 755 "${pkgdir}/opt/${pkgname}/i_iwara"
+
+  # Create a symlink in /usr/bin
+  install -d "${pkgdir}/usr/bin"
+  ln -s "/opt/${pkgname}/i_iwara" "${pkgdir}/usr/bin/i_iwara"
+
+  # Install icon
+  install -Dm644 "bundle/data/flutter_assets/assets/icon/launcher_icon_v2.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/love_iwara.png"
+
+  # Install desktop entry
+  install -Dm644 /dev/stdin "${pkgdir}/usr/share/applications/love-iwara.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Name=Love Iwara
+Exec=/usr/bin/i_iwara
+Icon=love_iwara
+Categories=Network;Video;Player;
+Terminal=false
+EOF
+}
