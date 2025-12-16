@@ -1,6 +1,6 @@
 pkgname=love-iwara-bin
-pkgver=0.3.18
-pkgrel=3
+pkgver=0.4.1
+pkgrel=1
 pkgdesc="An unofficial iwara flutter app."
 arch=('any')
 url="https://github.com/FoxSensei001/LoveIwara"
@@ -11,9 +11,9 @@ provides=('love-iwara')
 conflicts=('love-iwara')
 maintainer="OrzMiku <miku@ecy.pink>"
 source=(
-  "${pkgname}-${pkgver}-${pkgrel}.zip::https://github.com/FoxSensei001/LoveIwara/releases/download/0.3.18/linux-release.zip"
+  "${pkgname}-${pkgver}-${pkgrel}.zip::https://github.com/FoxSensei001/LoveIwara/releases/download/${pkgver}/linux-release.zip"
 )
-sha256sums=('7c1a3f17cde4c8a6197a2d27359e41d6f553bfd176ca33479ad42b8750ccdb79')
+sha256sums=('6b1e038516c7bb562d402e647b63c3b9f8de283578d867460c414c51ec06f85d')
 
 package() {
   # Extract the inner tar.gz file
